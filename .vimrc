@@ -48,51 +48,50 @@ let g:syntastic_check_on_wq = 0
 " default syntastic to just use pylint to speed it up
 let g:syntastic_python_checkers = ['pylint']
 
-
-" REGULAR SETTINGS
-" python settings
-au BufNewFile,BufRead *.py
-    \ set tabstop=4 |
-    \ set softtabstop=4 |
-    \ set shiftwidth=4 |
-    \ set textwidth=79 |
-    \ set expandtab |
-    \ set autoindent |
-    \ set fileformat=unix |
-let python_highlight_all=1
-syntax on
-
-"javascript, html, css settings
-au BufNewFile,BufRead *.js,*.html,*.css
-    \ set tabstop=2 |
-    \ set softtabstop=2 |
-    \ set shiftwidth=2 |
-
-"define BadWhitespace before using in a match
-highlight BadWhitespace ctermbg=red guibg=red
-" Flag unnecessary whitespace
-au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
-
 set encoding=utf-8
-set colorcolumn=80
+set colorcolumn=100
 set number
-
-" https://dougblack.io/words/a-good-vimrc.html
 set cursorline          " highlight current line
-set showcmd             " show command in bottom bar
-set wildmenu            " visual autocomplete for command menu
-set showmatch           " highlight matching [{()}]
-set incsearch           " search as characters are entered
-set hlsearch            " highlight matches
-set foldenable          " enable folding
-set foldlevelstart=10   " open most folds by default
-set foldnestmax=10      " 10 nested fold max
-set foldmethod=indent   " fold based on indent level
-filetype indent on      " load filetype-specific indent files
-" space open/closes folds
-nnoremap <space> za
-" turn off search highlight
-nnoremap <leader><space> :nohlsearch<CR>
 inoremap jk <Esc>
 inoremap kj <Esc>
 colorscheme ron
+
+
+" From the Google Python Style guide
+" https://github.com/google/styleguide/blob/gh-pages/pyguide.md
+" Indent Python in the Google way.
+
+setlocal indentexpr=GetGooglePythonIndent(v:lnum)
+
+let s:maxoff = 50 " maximum number of lines to look backwards.
+
+function GetGooglePythonIndent(lnum)
+
+  " Indent inside parens.
+  " Align with the open paren unless it is at the end of the line.
+  " E.g.
+  "   open_paren_not_at_EOL(100,
+  "                         (200,
+  "                          300),
+  "                         400)
+  "   open_paren_at_EOL(
+  "       100, 200, 300, 400)
+  call cursor(a:lnum, 1)
+  let [par_line, par_col] = searchpairpos('(\|{\|\[', '', ')\|}\|\]', 'bW',
+        \ "line('.') < " . (a:lnum - s:maxoff) . " ? dummy :"
+        \ . " synIDattr(synID(line('.'), col('.'), 1), 'name')"
+        \ . " =~ '\\(Comment\\|String\\)$'")
+  if par_line > 0
+    call cursor(par_line, 1)
+    if par_col != col("$") - 1
+      return par_col
+    endif
+  endif
+
+  " Delegate the rest to the original function.
+  return GetPythonIndent(a:lnum)
+
+endfunction
+
+let pyindent_nested_paren="&sw*2"
+let pyindent_open_paren="&sw*2"
