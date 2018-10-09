@@ -4,7 +4,7 @@ ENV MINICONDA3 Miniconda3-latest-Linux-x86_64.sh
 ENV PATH "$HOME/miniconda3/bin:$PATH"
 # You Complete Me (vim plugin) requires build-essential and cmake
 RUN apt-get -y update && \
-apt-get -y install vim curl bzip2 git build-essential cmake && \
+apt-get -y install vim screen curl bzip2 git build-essential cmake && \
 apt-get clean && \
 rm -rf /var/lib/apt/lists/* && \
 curl -O https://repo.continuum.io/miniconda/$MINICONDA3 && \
