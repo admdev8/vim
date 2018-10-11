@@ -13,4 +13,5 @@ rm $MINICONDA3 && \
 $HOME/miniconda3/bin/pip install pylint && \
 curl -o $HOME/.vimrc https://raw.githubusercontent.com/michaelperel/vim/master/.vimrc && \
 vim +'PlugInstall --sync' +qa >/dev/null 2>&1
+WORKDIR /app
 CMD bash
